@@ -1,5 +1,9 @@
 ### This is a GitHub Actions workflow file for a Terraform pipeline.
 ### It triggers on pushes to the 'dev' branch and only if files in the 'terraform' directory are changed.
+### The pipeline performs the following steps:
+### 1. Checks out the code from the repository.
+### 2. Sets up Terraform using a specific version.
+### 3. Changes the working directory to 'terraform'.
 name: Terraform Pipeline
 
 on:
