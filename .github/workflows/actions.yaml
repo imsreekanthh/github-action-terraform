@@ -1,9 +1,3 @@
-### This is a GitHub Actions workflow file for a Terraform pipeline.
-### It triggers on pushes to the 'dev' branch and only if files in the 'terraform' directory are changed.
-### The pipeline performs the following steps:
-### 1. Checks out the code from the repository.
-### 2. Sets up Terraform using a specific version.
-### 3. Changes the working directory to 'terraform'.
 name: Terraform Pipeline
 
 on:
@@ -16,33 +10,34 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    env:
+      GOOGLE_APPLICATION_CREDENTIALS: ${{ github.workspace }}/gcp-key.json
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Write GCP credentials to file
+        run: echo '${{ secrets.terraform }}' > $GOOGLE_APPLICATION_CREDENTIALS
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v1
         with:
           terraform_version: 1.0.0
 
-      - name: Change to terraform directory
-        run: cd terraform
-      
-      - name: Google Cloud Auth
-        uses: 'google-github-actions/auth@v2'
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v2
         with:
-          credentials_json: '${{ secrets.terraform}}'
-          
+          credentials_json: '${{ secrets.terraform }}'
 
-      - name: Initialize Terraform
+      - name: Terraform Init
         run: terraform -chdir=terraform init
 
-      - name: Validate Terraform configuration
+      - name: Terraform Validate
         run: terraform -chdir=terraform validate
 
-      - name: Plan Terraform changes
+      - name: Terraform Plan
         run: terraform -chdir=terraform plan
 
-      - name: Apply Terraform changes
+      - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
